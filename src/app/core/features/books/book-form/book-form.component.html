@@ -1,0 +1,79 @@
+<div class="p-4 max-w-md mx-auto">
+  <div class="card">
+    <div class="card-body">
+
+      <h2 class="card-title text-2xl font-bold mb-4" *ngIf="bookId; else addMode">
+        Edit Book
+      </h2>
+      <ng-template #addMode>
+        <h2 class="card-title text-2xl font-bold mb-4">Add New Book</h2>
+      </ng-template>
+
+      <form [formGroup]="bookForm" (ngSubmit)="saveBook()" class="space-y-4">
+
+        <!-- Title Field -->
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="title"
+          />
+          <div
+            *ngIf="bookForm.get('title')?.invalid && bookForm.get('title')?.touched"
+            class="text-red-500 text-sm mt-1"
+          >
+            Title is required.
+          </div>
+        </div>
+
+        <!-- Author Field -->
+        <div class="form-group">
+          <label class="form-label">Author</label>
+          <input
+            type="text"
+            class="form-control"
+            formControlName="author"
+          />
+          <div
+            *ngIf="bookForm.get('author')?.invalid && bookForm.get('author')?.touched"
+            class="text-red-500 text-sm mt-1"
+          >
+            Author is required.
+          </div>
+        </div>
+
+        <!-- Description Field -->
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea
+            class="form-control"
+            formControlName="description"
+            rows="3"
+          ></textarea>
+        </div>
+
+        <!-- Price Field -->
+        <div class="form-group">
+          <label class="form-label">Price</label>
+          <input
+            type="number"
+            class="form-control"
+            formControlName="price"
+          />
+        </div>
+
+        <!-- Save Button -->
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="bookForm.invalid"
+        >
+          Save
+        </button>
+
+      </form>
+
+    </div>
+  </div>
+</div>
