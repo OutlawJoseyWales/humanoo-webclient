@@ -58,11 +58,11 @@ export class BookFormComponent implements OnInit {
 
     if (this.bookId) {
       this.bookService.updateBook(this.bookId, formValue).subscribe(() => {
-        this.router.navigate(['/books']);
+        this.router.navigate(['/']);
       });
     } else {
       this.bookService.createBook(formValue).subscribe(() => {
-        this.router.navigate(['/books']);
+        this.router.navigate(['/']);
       });
     }
   }
