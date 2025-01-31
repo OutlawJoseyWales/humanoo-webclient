@@ -5,48 +5,31 @@ import {CommonModule} from '@angular/common';
 import {BookService} from '../../services/book.service';
 import {Book} from '../../models/book.model';
 import {ToastService} from '../../services/toast.service';
+import {BookCrudComponent} from '../book-crud/book-crud.component';
 
 
 @Component({
   standalone: true,
   selector: 'app-add-book-modal',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, BookCrudComponent],
   templateUrl: './add-book-modal.component.html',
 })
 export class AddBookModalComponent {
-  bookForm: FormGroup;
-
   constructor(
     public activeModal: NgbActiveModal,
-    private fb: FormBuilder,
     private bookService: BookService,
-    private toastService: ToastService,
-  ) {
-    this.bookForm = this.fb.group({
-      title: ['', Validators.required],
-      author: ['', Validators.required],
-      description: [''],
-      price: [0],
-    });
-  }
+    private toastService: ToastService
+  ) {}
 
-  onSubmit() {
-    if (this.bookForm.invalid) return;
-    const book: Book = this.bookForm.value;
+  onFormSubmit(book: Book) {
     this.bookService.createBook(book).subscribe({
       next: () => {
+        this.toastService.show('Book added!', 'bg-success text-light');
         this.activeModal.close('book-added');
-        this.toastService.show(
-          'Book added successfully!',
-          'bg-success text-light'
-        );
       },
       error: (err) => {
         console.error('Error adding book:', err);
-        this.toastService.show(
-          'Failed to add the book!',
-          'bg-danger text-light'
-        );
+        this.toastService.show('Failed to add the book.', 'bg-danger text-light');
       }
     });
   }

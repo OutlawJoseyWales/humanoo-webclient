@@ -1,9 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ReactiveFormsModule} from '@angular/forms';
 import {BookService} from '../../../services/book.service';
 import {Book} from '../../../models/book.model';
 import {NgIf} from '@angular/common';
+import {BookCrudComponent} from '../../../shared/book-crud/book-crud.component';
+import {ToastService} from '../../../services/toast.service';
 
 
 @Component({
@@ -12,58 +14,44 @@ import {NgIf} from '@angular/common';
   templateUrl: './book-form.component.html',
   imports: [
     ReactiveFormsModule,
-    NgIf
+    NgIf,
+    BookCrudComponent
   ]
 })
 export class BookFormComponent implements OnInit {
-  bookForm: FormGroup;
-  bookId?: number;
+  book: Book | null = null;
 
   constructor(
-    private fb: FormBuilder,
-    private bookService: BookService,
+    private route: ActivatedRoute,
     private router: Router,
-    private route: ActivatedRoute
-  ) {
-    this.bookForm = this.fb.group({
-      title: ['', [Validators.required, Validators.minLength(1)]],
-      author: ['', [Validators.required]],
-      description: [''],
-      price: [0],
-    });
-  }
+    private bookService: BookService,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.bookId = +id;
-        this.bookService.getBookById(this.bookId).subscribe(book => {
-          this.bookForm.patchValue({
-            title: book.title,
-            author: book.author,
-            description: book.description,
-            price: book.price
-          });
-        });
+    const bookId = +this.route.snapshot.paramMap.get('id')!;
+    this.bookService.getBookById(bookId).subscribe({
+      next: (book) => this.book = book,
+      error: (err) => {
+        console.error('Error fetching book:', err);
+        this.toastService.show('Failed to load the book.', 'bg-danger text-light');
+        this.router.navigate(['']); // Redirect if book not found
       }
     });
   }
 
-  saveBook(): void {
-    if (this.bookForm.invalid) {
-      return;
-    }
-    const formValue: Book = this.bookForm.value;
+  onFormSubmit(updatedBook: Book) {
+    if (!this.book) return;
 
-    if (this.bookId) {
-      this.bookService.updateBook(this.bookId, formValue).subscribe(() => {
-        this.router.navigate(['/']);
-      });
-    } else {
-      this.bookService.createBook(formValue).subscribe(() => {
-        this.router.navigate(['/']);
-      });
-    }
+    this.bookService.updateBook(this.book.id, updatedBook).subscribe({
+      next: () => {
+        this.toastService.show('Book updated!', 'bg-success text-light');
+        this.router.navigate(['']);
+      },
+      error: (err) => {
+        console.error('Error updating book:', err);
+        this.toastService.show('Failed to update the book.', 'bg-danger text-light');
+      }
+    });
   }
 }
