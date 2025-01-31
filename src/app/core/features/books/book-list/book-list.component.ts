@@ -6,6 +6,8 @@ import {BookService} from '../../../services/book.service';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {AsyncPipe, NgForOf, NgIf} from '@angular/common';
 import {AddBookModalComponent} from '../../../shared/add-book-modal/add-book-modal.component';
+import {DeleteConfirmModalComponent} from '../delete-confirm-modal/delete-confirm-modal.component';
+import {ToastService} from '../../../services/toast.service';
 
 @Component({
   selector: 'app-book-list',
@@ -23,7 +25,8 @@ export class BookListComponent implements OnInit {
   constructor(
     private bookService: BookService,
     private router: Router,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private toastService: ToastService,
   ) {
     this.books$ = this.bookService.books$;
   }
@@ -35,7 +38,7 @@ export class BookListComponent implements OnInit {
   openAddBookModal() {
     const modalRef = this.modalService.open(AddBookModalComponent, { size: 'lg' });
     // If user successfully closes the modal (book added),
-    // we refresh the list:
+    // we refresh the list
     modalRef.closed.subscribe(result => {
       if (result === 'book-added') {
         this.bookService.fetchBooks();
@@ -44,15 +47,31 @@ export class BookListComponent implements OnInit {
   }
 
   editBook(bookId: number): void {
-    // We can still navigate, or do a separate modal for editing, etc.
     this.router.navigate(['/books/edit', bookId]);
   }
 
   deleteBook(bookId: number): void {
-    if (confirm('Are you sure you want to delete this book?')) {
-      this.bookService.deleteBook(bookId).subscribe(() => {
+    this.bookService.deleteBook(bookId).subscribe({
+      next: () => {
         this.bookService.fetchBooks();
-      });
-    }
+        this.toastService.show('Book deleted!', 'bg-danger text-light');
+      },
+      error: () => {
+        this.toastService.show('Failed to delete book.', 'bg-danger text-light');
+      }
+    });
+  }
+
+  confirmDelete(book: Book) {
+    // Open the delete modal, pass in the itemName or other data
+    const modalRef = this.modalService.open(DeleteConfirmModalComponent);
+    modalRef.componentInstance.itemName = book.title;
+
+    // Subscribe to modal close
+    modalRef.closed.subscribe(result => {
+      if (result === 'deleteConfirmed') {
+        this.deleteBook(book.id);
+      }
+    });
   }
 }

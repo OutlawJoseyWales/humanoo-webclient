@@ -2,7 +2,7 @@
   <h2 class="text-2xl font-bold mb-4">Book List</h2>
 
   <div class="mb-4">
-    <button (click)="openAddBookModal()" class="btn btn-primary">
+    <button class="btn btn-primary" (click)="openAddBookModal()">
       + Add Book
     </button>
   </div>
@@ -23,20 +23,10 @@
         <td>{{ book.id }}</td>
         <td>{{ book.title }}</td>
         <td>{{ book.author }}</td>
-        <td>{{ book.price || 'N/A' }}</td>
+        <td>{{ book.price }}</td>
         <td>
-          <button
-            class="btn btn-success btn-sm me-2"
-            (click)="editBook(book.id)"
-          >
-            Edit
-          </button>
-          <button
-            class="btn btn-danger btn-sm"
-            (click)="deleteBook(book.id)"
-          >
-            Delete
-          </button>
+          <button class="btn btn-success btn-sm me-2" (click)="editBook(book.id)">Edit</button>
+          <button class="btn btn-danger btn-sm" (click)="confirmDelete(book)">Delete</button>
         </td>
       </tr>
       </tbody>
@@ -44,8 +34,6 @@
   </ng-container>
 
   <ng-template #noBooks>
-    <div class="mt-4 alert alert-warning">
-      No books available.
-    </div>
+    <div class="alert alert-warning">No books available.</div>
   </ng-template>
 </div>
