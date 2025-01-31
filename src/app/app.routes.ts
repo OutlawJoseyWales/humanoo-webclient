@@ -4,6 +4,5 @@ import { BookListComponent } from './core/features/books/book-list/book-list.com
 
 export const routes: Routes = [
   { path: '', component: BookListComponent },
-  { path: 'books/new', component: BookFormComponent },
   { path: 'books/edit/:id', component: BookFormComponent },
 ];
